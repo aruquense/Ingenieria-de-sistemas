@@ -3,6 +3,8 @@ import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 import java.io.StringReader;
+import java.util.List;
+import java.util.Vector;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -52,6 +54,8 @@ public class NewClass {
         return port.getElementSymbol(elementName);
     }
     public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException{
+        
+	List<Atom> out = new Vector<Atom>();
         String xmlRecords ;
         xmlRecords = getAtomicNumber("Gold");
         System.out.println(xmlRecords );
@@ -76,16 +80,52 @@ public class NewClass {
 
         Document doc = db.parse(is);
         NodeList nodes = doc.getElementsByTagName("Table");
+            System.out.println("nodes: " +  nodes.getLength());
         
 
         for (int i = 0; i < nodes.getLength(); i++) {
-        Element element = (Element) nodes.item(i);
-      NodeList DATA = element.getElementsByTagName("ElementName");
-      Element line = (Element) DATA.item(0);
-      System.out.println("DATA: " + getCharacterDataFromElement(line));
+            Element element = (Element) nodes.item(i);
+            NodeList DATA = element.getElementsByTagName("ElementName");
+            Element line = (Element) DATA.item(0);
+            System.out.println("DATA: " + getCharacterDataFromElement(line));
+            //System.out.println(getAtomicNumber(getCharacterDataFromElement(line)));
+            
+            String xmlRecords2=getAtomicNumber(getCharacterDataFromElement(line)) ;
+            DocumentBuilder db2 = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            InputSource is2 = new InputSource();
+            is2.setCharacterStream(new StringReader(xmlRecords2));
+
+            Document doc2 = db2.parse(is2);
+            
+            //System.out.println();
+            Atom atomo= new Atom(getCharacterDataFromElement((Element) doc2.getElementsByTagName("AtomicNumber").item(0)),
+                    getCharacterDataFromElement(line),
+                    getCharacterDataFromElement((Element) doc2.getElementsByTagName("Symbol").item(0)));
+            if (((Element) doc2.getElementsByTagName("AtomicWeight").item(0))!=null){
+                atomo.setAtomicWeight(getCharacterDataFromElement((Element) doc2.getElementsByTagName("AtomicWeight").item(0)));
+            }
+            if (((Element) doc2.getElementsByTagName("BoilingPoint").item(0))!=null){
+                atomo.setBoilingPoint(getCharacterDataFromElement((Element) doc2.getElementsByTagName("BoilingPoint").item(0)));
+            }
+            if (((Element) doc2.getElementsByTagName("IonisationPotential").item(0))!=null){
+                atomo.setIonisationPotential(getCharacterDataFromElement((Element) doc2.getElementsByTagName("IonisationPotential").item(0)));
+            }
+            if (((Element) doc2.getElementsByTagName("EletroNegativity").item(0))!=null){
+                atomo.setEletroNegativity(getCharacterDataFromElement((Element) doc2.getElementsByTagName("EletroNegativity").item(0)));
+            }
+            if (((Element) doc2.getElementsByTagName("AtomicRadius").item(0))!=null){
+                atomo.setAtomicRadius(getCharacterDataFromElement((Element) doc2.getElementsByTagName("AtomicRadius").item(0)));
+            }
+            if (((Element) doc2.getElementsByTagName("MeltingPoint").item(0))!=null){
+                atomo.setMeltingPoint(getCharacterDataFromElement((Element) doc2.getElementsByTagName("MeltingPoint").item(0)));
+            }
+            if (((Element) doc2.getElementsByTagName("Density").item(0))!=null){
+                atomo.setDensity(getCharacterDataFromElement((Element) doc2.getElementsByTagName("Density").item(0)));
+            }
+            out.add(atomo);
 
     }
-        
+            System.out.println();
     }
   public static String getCharacterDataFromElement(Element e) {
     Node child = e.getFirstChild();
